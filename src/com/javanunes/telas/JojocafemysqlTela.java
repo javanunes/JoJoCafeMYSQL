@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -53,6 +55,8 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
     public void alert(String mensagem){
         JOptionPane.showMessageDialog (null, mensagem);
     }
+    
+    
     
     
     public void mostraBancos(){
@@ -217,9 +221,13 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
         
         if(!txtUsuario.getText().equals("")){
             if(!txtHost.getText().equals("")){
+                controle.setUser(txtUsuario.getText());
+                controle.setPassword(txtPassword.getText());
+                controle.setHostname(txtHost.getText());
                 mostraBancos();
                 mostraTabelas("mysql");
                 return 1;
+                
             }
             else{
                 alert("Faltou especificar um host para se conectar!");
@@ -232,12 +240,26 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
             txtUsuario.setFocusable(true);
             return 0;
         }
-        
-        
-        
-        
-        
-        
+    }
+    
+    public int desconectaDesabilitaBotaoDesconectaHabilitaBotaoConeca(){
+        try
+        {
+            if(controle.isEmUso()){
+                Connection conexao = controle.conectaNoBancoDados("mysql");
+                controle.setEmUso(false);
+                btConecta.setEnabled(true);
+                apagaLinhasTabela();
+                conexao.close();
+                return 1;
+            }
+            return 0;
+           
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(JojocafemysqlTela.class.getName()).log(Level.SEVERE, null, ex);
+            return 0;
+        }
     }
     
     
@@ -262,21 +284,19 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         txtUsuario = new javax.swing.JTextField();
-        javax.swing.JPasswordField txtPassowrd = new javax.swing.JPasswordField();
         txtHost = new javax.swing.JTextField();
+        txtPassword = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("JojoCafe Surfer Mysql");
+        setTitle("Jojocafe Surfer MySQL");
 
         tbEstruturaBanco.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
                 {null, null, null, null}
+               
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "CAMPO", "TIPO", "TAMANHO", "NULO?"
             }
         ));
         jScrollPane2.setViewportView(tbEstruturaBanco);
@@ -307,7 +327,7 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
         btApagar.setText("Apagar");
         btApagar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btApagarActionPerformed(evt);
+               // todo
             }
         });
 
@@ -355,6 +375,7 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
             }
         });
 
+        // Estrutura GUI JavaNunes Jojocafe mysql
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -396,8 +417,8 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(txtUsuario)
-                                    .addComponent(txtPassowrd)
-                                    .addComponent(txtHost, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE))))
+                                    .addComponent(txtHost, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+                                    .addComponent(txtPassword))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane2)))
                 .addGap(27, 27, 27))
@@ -431,13 +452,14 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
                             .addComponent(jLabel3)
                             .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txtPassowrd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(txtHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel5)
+                                    .addComponent(txtHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 446, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -482,7 +504,7 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
 
     private void btDesconectaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDesconectaActionPerformed
         // TODO add your handling code here:
-        apagaLinhasTabela();
+        desconectaDesabilitaBotaoDesconectaHabilitaBotaoConeca();
     }//GEN-LAST:event_btDesconectaActionPerformed
 
     private void txtHostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHostActionPerformed
@@ -509,6 +531,7 @@ public class JojocafemysqlTela extends javax.swing.JFrame {
     private javax.swing.JLabel lbStatus;
     private javax.swing.JTable tbEstruturaBanco;
     private javax.swing.JTextField txtHost;
+    private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
    
